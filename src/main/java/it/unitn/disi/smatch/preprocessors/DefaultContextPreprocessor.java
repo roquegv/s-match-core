@@ -30,7 +30,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     /**
      * the words which are cut off from the area of discourse
      */
-    public static final String DEFAULT_MEANINGLESS_WORDS = "of on to their than from for by in at is are have has the a as with your etc our into its his her which him among those against ";
+    public static final String DEFAULT_MEANINGLESS_WORDS = " of on to their than from for by in at is are have has the a as with your etc our into its his her which him among those against di dell della de sobre hacia su que desde para por en es son tener tiene el la un como con tu nuestro dentro cual le entre aquellos contra ";
     /**
      * the words which are treated as logical and (&)
      */
@@ -38,11 +38,11 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     /**
      * the words which are treated as logical or (|)
      */
-    public static final String DEFAULT_OR_WORDS = " and or | , ";
+    public static final String DEFAULT_OR_WORDS = " and or | , e o y ";
     /**
      * the words which are treated as logical not (~)
      */
-    public static final String DEFAULT_NOT_WORDS = " except non without ";
+    public static final String DEFAULT_NOT_WORDS = " except non without excepto no sin ";
     /**
      * number characters
      */
@@ -198,7 +198,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
             labelOfNode = labelOfNode.toLowerCase();
             List<ISense> wnSense = new ArrayList<>();
             if (!(("top".equals(labelOfNode) || "thing".equals(labelOfNode)) && !node.hasParent())
-                    && (!meaninglessWords.contains(labelOfNode + " ")) && (isTokenMeaningful(labelOfNode))) {
+                    && (!meaninglessWords.contains(" " + labelOfNode + " ")) && (isTokenMeaningful(labelOfNode))) {
                 wnSense = linguisticOracle.getSenses(labelOfNode, node.getLanguage());
             }
 
@@ -241,7 +241,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                 for (int i = 0; i < tokens.size(); i++) {
                     String token = tokens.get(i).trim();
                     // if the token is not meaningless
-                    if ((!meaninglessWords.contains(token + " ")) && (isTokenMeaningful(token))) {
+                    if ((!meaninglessWords.contains(" " + token + " ")) && (isTokenMeaningful(token))) {
                         // add to list of processed tokens
                         tokensOfNodeLabel.add(token);
                         // if not logical connective
