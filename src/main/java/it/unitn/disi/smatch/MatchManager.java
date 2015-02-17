@@ -246,6 +246,7 @@ public class MatchManager implements IMatchManager {
         if (log.isTraceEnabled()) {
             for (Iterator<INode> i = context.nodeIterator(); i.hasNext(); ) {
                 INode node = i.next();
+                node.setLanguage(context.getLanguage());
                 StringBuilder builder = new StringBuilder();
                 for (int j = 0; j < node.ancestorCount(); j++) {
                     builder.append("\t");

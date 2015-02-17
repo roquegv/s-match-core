@@ -1,7 +1,9 @@
 package it.unitn.disi.smatch.oracles;
 
 import it.unitn.disi.smatch.data.ling.ISense;
+import it.unitn.disi.smatch.data.trees.IContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ public interface ILinguisticOracle {
      * @return true if lemmas are equal
      * @throws LinguisticOracleException LinguisticOracleException
      */
-    boolean isEqual(String str1, String str2) throws LinguisticOracleException;
+    boolean isEqual(String str1, String str2, String language) throws LinguisticOracleException;
 
     /**
      * Returns all senses of a word.
@@ -29,7 +31,7 @@ public interface ILinguisticOracle {
      * @return word senses
      * @throws LinguisticOracleException LinguisticOracleException
      */
-    List<ISense> getSenses(String word) throws LinguisticOracleException;
+    List<ISense> getSenses(String word, String language) throws LinguisticOracleException;
 
     /**
      * Returns base forms (lemmas) of a word.
@@ -38,7 +40,7 @@ public interface ILinguisticOracle {
      * @return base forms of a derivation
      * @throws LinguisticOracleException LinguisticOracleException
      */
-    List<String> getBaseForms(String derivation) throws LinguisticOracleException;
+    List<String> getBaseForms(String derivation, String language) throws LinguisticOracleException;
 
     /**
      * Creates an instance of a sense.
@@ -47,7 +49,7 @@ public interface ILinguisticOracle {
      * @return an instance of a senses.
      * @throws LinguisticOracleException LinguisticOracleException
      */
-    ISense createSense(String id) throws LinguisticOracleException;
+    ISense createSense(String id, String language) throws LinguisticOracleException;
 
     /**
      * Returns list of possible multiword endings.
@@ -56,5 +58,9 @@ public interface ILinguisticOracle {
      * @return list of possible multiword endings
      * @throws LinguisticOracleException LinguisticOracleException
      */
-    List<List<String>> getMultiwords(String beginning) throws LinguisticOracleException;
+    ArrayList<ArrayList<String>> getMultiwords(String beginning, String language) throws LinguisticOracleException;
+
+    public String detectLanguage(IContext context);
+
+    public void readMultiwords(String language);
 }

@@ -59,13 +59,13 @@ public class WNSemanticGlossComparison extends BaseGlossMatcher implements ISens
                 while (stTarget.hasMoreTokens()) {
                     lemmaT = stTarget.nextToken();
                     if (!meaninglessWords.contains(lemmaT)) {
-                        if (isWordLessGeneral(lemmaS, lemmaT))
+                        if (isWordLessGeneral(lemmaS, lemmaT, source.getLanguage(), target.getLanguage()))
                             lessGeneral++;
-                        else if (isWordMoreGeneral(lemmaS, lemmaT))
+                        else if (isWordMoreGeneral(lemmaS, lemmaT, source.getLanguage(), target.getLanguage()))
                             moreGeneral++;
-                        else if (isWordSynonym(lemmaS, lemmaT))
+                        else if (isWordSynonym(lemmaS, lemmaT, source.getLanguage(), target.getLanguage()))
                             Equals++;
-                        else if (isWordOpposite(lemmaS, lemmaT))
+                        else if (isWordOpposite(lemmaS, lemmaT, source.getLanguage(), target.getLanguage()))
                             Opposite++;
                     }
                 }

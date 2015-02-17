@@ -65,4 +65,6 @@ public interface ISense {
      * @throws LinguisticOracleException LinguisticOracleException
      */
     List<ISense> getChildren(int depth) throws LinguisticOracleException;
+
+    public String getLanguage();
 }

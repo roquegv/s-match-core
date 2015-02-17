@@ -49,7 +49,6 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     public static final String DEFAULT_NUMBER_CHARACTERS = "1234567890";
 
     protected final ISenseMatcher senseMatcher;
-    protected final ILinguisticOracle linguisticOracle;
 
     protected final String meaninglessWords;
     protected final String andWords;
@@ -58,9 +57,8 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     protected final String numberCharacters;
 
     public DefaultContextPreprocessor(ISenseMatcher senseMatcher, ILinguisticOracle linguisticOracle) {
-        super(null);
+        super(linguisticOracle);
         this.senseMatcher = senseMatcher;
-        this.linguisticOracle = linguisticOracle;
 
         this.meaninglessWords = DEFAULT_MEANINGLESS_WORDS;
         this.andWords = DEFAULT_AND_WORDS;
@@ -70,9 +68,8 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     }
 
     public DefaultContextPreprocessor(ISenseMatcher senseMatcher, ILinguisticOracle linguisticOracle, IContext context) {
-        super(context);
+        super(context, linguisticOracle);
         this.senseMatcher = senseMatcher;
-        this.linguisticOracle = linguisticOracle;
 
         this.meaninglessWords = DEFAULT_MEANINGLESS_WORDS;
         this.andWords = DEFAULT_AND_WORDS;
@@ -86,9 +83,8 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     public DefaultContextPreprocessor(ISenseMatcher senseMatcher, ILinguisticOracle linguisticOracle,
                                       String meaninglessWords, String andWords,
                                       String orWords, String notWords, String numberCharacters) {
-        super(null);
+        super(linguisticOracle);
         this.senseMatcher = senseMatcher;
-        this.linguisticOracle = linguisticOracle;
 
         this.meaninglessWords = meaninglessWords;
         this.andWords = andWords;
@@ -100,9 +96,8 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
     public DefaultContextPreprocessor(ISenseMatcher senseMatcher, ILinguisticOracle linguisticOracle,
                                       String meaninglessWords, String andWords, String orWords,
                                       String notWords, String numberCharacters, IContext context) {
-        super(context);
+        super(context, linguisticOracle);
         this.senseMatcher = senseMatcher;
-        this.linguisticOracle = linguisticOracle;
 
         this.meaninglessWords = meaninglessWords;
         this.andWords = andWords;
@@ -128,9 +123,13 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
         }
         Set<String> unrecognizedWords = new HashSet<>();
 
+        String language = linguisticOracle.detectLanguage(context);
+        linguisticOracle.readMultiwords(language);
+        context.setLanguage(language);
+
         context = buildCLabs(context, unrecognizedWords);
-        context = findMultiwordsInContextStructure(context);
-        senseFiltering(context);
+        //context = findMultiwordsInContextStructure(context);
+        //senseFiltering(context);
 
         reportUnrecognizedWords(unrecognizedWords);
     }
@@ -166,8 +165,9 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
             if (Thread.currentThread().isInterrupted()) {
                 break;
             }
-
-            processNode(i.next(), unrecognizedWords);
+            INode node = i.next();
+            node.setLanguage(context.getLanguage());
+            processNode(node, unrecognizedWords);
 
             progress();
         }
@@ -199,7 +199,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
             List<ISense> wnSense = new ArrayList<>();
             if (!(("top".equals(labelOfNode) || "thing".equals(labelOfNode)) && !node.hasParent())
                     && (!meaninglessWords.contains(labelOfNode + " ")) && (isTokenMeaningful(labelOfNode))) {
-                wnSense = linguisticOracle.getSenses(labelOfNode);
+                wnSense = linguisticOracle.getSenses(labelOfNode, node.getLanguage());
             }
 
             // identifiers of meaningful tokens in
@@ -212,7 +212,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
             if (0 < wnSense.size()) {
                 // add to list of processed labels
                 tokensOfNodeLabel.add(labelOfNode);
-                List<String> lemmas = linguisticOracle.getBaseForms(labelOfNode);
+                List<String> lemmas = linguisticOracle.getBaseForms(labelOfNode, node.getLanguage());
                 String lemma = labelOfNode;
                 if (0 < lemmas.size()) {
                     lemma = lemmas.get(0);
@@ -236,7 +236,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                 }
 
                 // perform multiword recognition
-                tokens = multiwordRecognition(tokens);
+                tokens = multiwordRecognition(tokens, node.getLanguage());
                 // for all tokens in label
                 for (int i = 0; i < tokens.size(); i++) {
                     String token = tokens.get(i).trim();
@@ -249,16 +249,16 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                                 && !notWords.contains(token) && !hasNumber(token)) {
                             // get WN senses for token
                             if (!(("top".equals(token) || "thing".equals(token)) && !node.hasParent())) {
-                                wnSense = linguisticOracle.getSenses(token);
+                                wnSense = linguisticOracle.getSenses(token, node.getLanguage());
                             } else {
                                 wnSense = Collections.emptyList();
                             }
                             if (0 == wnSense.size()) {
-                                List<String> newTokens = complexWordsRecognition(token);
+                                List<String> newTokens = complexWordsRecognition(token, node.getLanguage());
                                 if (0 < newTokens.size()) {
                                     tokensOfNodeLabel.remove(tokensOfNodeLabel.size() - 1);
                                     tokensOfNodeLabel.add(newTokens.get(0));
-                                    wnSense = linguisticOracle.getSenses(newTokens.get(0));
+                                    wnSense = linguisticOracle.getSenses(newTokens.get(0), node.getLanguage());
                                     tokens.remove(i);
                                     tokens.add(i, newTokens.get(0));
                                     for (int j = 1; j < newTokens.size(); j++) {
@@ -267,7 +267,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                                     }
                                 }
                             }
-                            List<String> lemmas = linguisticOracle.getBaseForms(token);
+                            List<String> lemmas = linguisticOracle.getBaseForms(token, node.getLanguage());
                             String lemma = token;
                             if (0 < lemmas.size()) {
                                 lemma = lemmas.get(0);
@@ -335,7 +335,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
      * @return a list which contains parts of the complex word
      * @throws ContextPreprocessorException ContextPreprocessorException
      */
-    private List<String> complexWordsRecognition(String token) throws ContextPreprocessorException {
+    private List<String> complexWordsRecognition(String token, String language) throws ContextPreprocessorException {
         List<String> result = new ArrayList<>();
         try {
             List<ISense> senses = new ArrayList<>();
@@ -350,10 +350,10 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                 start = token.substring(0, i);
                 end = token.substring(i, token.length());
                 toCheck = start + ' ' + end;
-                senses = linguisticOracle.getSenses(toCheck);
+                senses = linguisticOracle.getSenses(toCheck, language);
                 if (0 == senses.size()) {
                     toCheck = start + '-' + end;
-                    senses = linguisticOracle.getSenses(toCheck);
+                    senses = linguisticOracle.getSenses(toCheck, language);
                 }
 
                 if (0 < senses.size()) {
@@ -361,9 +361,9 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                     break;
                 } else {
                     if ((start.length() > 3) && (end.length() > 3)) {
-                        senses = linguisticOracle.getSenses(start);
+                        senses = linguisticOracle.getSenses(start, language);
                         if (0 < senses.size()) {
-                            senses = linguisticOracle.getSenses(end);
+                            senses = linguisticOracle.getSenses(end, language);
                             if (0 < senses.size()) {
                                 flag = true;
                                 break;
@@ -545,13 +545,13 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
         return lemma;
     }
 
-    private List<ISense> checkMW(String source, String target) throws ContextPreprocessorException {
+    private List<ISense> checkMW(String source, String target, String language) throws ContextPreprocessorException {
         try {
-            List<List<String>> mwEnds = linguisticOracle.getMultiwords(source);
+            ArrayList<ArrayList<String>> mwEnds = linguisticOracle.getMultiwords(source, language);
             if (mwEnds != null) {
                 for (List<String> strings : mwEnds) {
-                    if (extendedIndexOf(strings, target, 0) > 0) {
-                        return linguisticOracle.getSenses(source + " " + target);
+                    if (extendedIndexOf(strings, target, 0, language) > 0) {
+                        return linguisticOracle.getSenses(source + " " + target, language);
                     }
                 }
             }
@@ -600,7 +600,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
         while (i.hasNext()) {
             INode targetNode = i.next();
             for (IAtomicConceptOfLabel synTarget : targetNode.nodeData().getConcepts()) {
-                List<ISense> wnSenses = checkMW(synSource.getLemma(), synTarget.getLemma());
+                List<ISense> wnSenses = checkMW(synSource.getLemma(), synTarget.getLemma(), targetNode.getLanguage());
                 enrichSensesSets(synSource, wnSenses);
                 enrichSensesSets(synTarget, wnSenses);
             }
@@ -748,7 +748,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
      * @return position
      * @throws ContextPreprocessorException ContextPreprocessorException
      */
-    private int extendedIndexOf(List<String> vec, String str, int init_pos) throws ContextPreprocessorException {
+    private int extendedIndexOf(List<String> vec, String str, int init_pos, String language) throws ContextPreprocessorException {
         try {
             // for all words in the input list starting from init_pos
             for (int i = init_pos; i < vec.size(); i++) {
@@ -758,7 +758,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                     return i;
                 } else if (vel.indexOf(str) == 0) {
                     // and semantic comparison
-                    if (linguisticOracle.isEqual(vel, str)) {
+                    if (linguisticOracle.isEqual(vel, str, language)) {
                         vec.add(i, str);
                         vec.remove(i + 1);
                         return i;
@@ -783,16 +783,16 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
      * @return a list which contains multiwords
      * @throws ContextPreprocessorException ContextPreprocessorException
      */
-    private ArrayList<String> multiwordRecognition(ArrayList<String> tokens) throws ContextPreprocessorException {
+    private ArrayList<String> multiwordRecognition(ArrayList<String> tokens, String language) throws ContextPreprocessorException {
         String subLemma;
         Map<String, List<Integer>> is_token_in_multiword = new HashMap<>();
         for (int i = 0; i < tokens.size(); i++) {
             subLemma = tokens.get(i);
             if ((!andWords.contains(subLemma)) || (!orWords.contains(subLemma))) {
                 // if there a multiword starting with a sublemma
-                List<List<String>> entries;
+                ArrayList<ArrayList<String>> entries;
                 try {
-                    entries = linguisticOracle.getMultiwords(subLemma);
+                    entries = linguisticOracle.getMultiwords(subLemma, language);
                 } catch (LinguisticOracleException e) {
                     throw new ContextPreprocessorException(e.getMessage(), e);
                 }
@@ -802,7 +802,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                         int co = 0;
                         // at the end co is needed to move pointer for the cases like
                         // Clupea harengus with mw Clupea harengus harengus
-                        while ((co < mweTail.size()) && (extendedIndexOf(tokens, mweTail.get(co), co) > i + co)) {
+                        while ((co < mweTail.size()) && (extendedIndexOf(tokens, mweTail.get(co), co, language) > i + co)) {
                             flag = true;
                             co++;
                         }
@@ -821,7 +821,7 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
                                 int old_pos = word_pos;
                                 word_pos = tokens.subList(old_pos + 1, tokens.size()).indexOf(tok) + old_pos + 1;
                                 if (word_pos == -1) {
-                                    word_pos = extendedIndexOf(tokens, tok, old_pos);
+                                    word_pos = extendedIndexOf(tokens, tok, old_pos, language);
                                     if (word_pos == -1) {
                                         break;
                                     }

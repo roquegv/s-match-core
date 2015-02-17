@@ -133,7 +133,7 @@ public class RunnableDefaultContextPreprocessor extends DefaultContextPreprocess
 
         context = buildCLabs(context, unrecognizedWords);
         context = findMultiwordsInContextStructure(context);
-        senseFiltering(context);
+        //senseFiltering(context);
 
         reportUnrecognizedWords(unrecognizedWords);
     }
@@ -157,6 +157,7 @@ public class RunnableDefaultContextPreprocessor extends DefaultContextPreprocess
                 @Override
                 public void run() {
                     try {
+                        node.setLanguage(context.getLanguage());
                         processNode(node, unrecognizedWords);
                     } catch (ContextPreprocessorException e) {
                         productionException.compareAndSet(null, e);

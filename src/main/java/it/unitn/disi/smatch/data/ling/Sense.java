@@ -13,14 +13,16 @@ import java.util.List;
  */
 public abstract class Sense implements ISense, Serializable {
 
-    protected final String id;
+    protected final Long id;
+    protected String language;
 
-    public Sense(String id) {
+    public Sense(Long id,String language) {
         this.id = id;
+        this.language = language;
     }
 
     public String getId() {
-        return id;
+        return String.valueOf(id);
     }
 
     public String getGloss() {
@@ -49,7 +51,7 @@ public abstract class Sense implements ISense, Serializable {
 
     @Override
     public String toString() {
-        return id;
+        return String.valueOf(id);
     }
 
     @Override
@@ -73,5 +75,9 @@ public abstract class Sense implements ISense, Serializable {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 }

@@ -12,6 +12,7 @@ import java.util.Iterator;
 public class BaseContext<E extends IBaseNode> implements IBaseContext<E>, IBaseTreeStructureChangedListener<E> {
 
     protected E root;
+    private String language;
 
     public BaseContext() {
         root = null;
@@ -77,5 +78,14 @@ public class BaseContext<E extends IBaseNode> implements IBaseContext<E>, IBaseT
 
     @Override
     public void treeStructureChanged(E node) {
+    }
+
+    @Override
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

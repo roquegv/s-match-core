@@ -72,4 +72,9 @@ public interface IBaseContext<E extends IBaseNode> {
      * @return amount of nodes in the context
      */
     int nodesCount();
+
+    String getLanguage();
+
+    void setLanguage(String language);
+
 }

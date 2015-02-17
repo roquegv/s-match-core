@@ -31,12 +31,21 @@ public class BaseNode<E extends IBaseNode, I extends IBaseNodeData> extends Inde
     // within a context. This is achieved by using node id + token id for each token
     protected String id;
     protected String name;
+    private String language;
 
     @JsonIgnore
     protected Object userObject;
 
     // node counter to set unique node id during creation
     protected static final AtomicLong nodeCounter = new AtomicLong();
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
     // iterator which iterates over all parent nodes
     private final class AncestorsIterator implements Iterator<E> {

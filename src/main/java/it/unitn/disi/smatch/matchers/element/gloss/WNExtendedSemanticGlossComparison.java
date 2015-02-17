@@ -50,12 +50,12 @@ public class WNExtendedSemanticGlossComparison extends BaseGlossMatcher implemen
             // get gloss of Immediate ancestor of target node
             String tLGExtendedGloss = getExtendedGloss(target, 1, IMappingElement.LESS_GENERAL);
             // get relation frequently occur between gloss of source and extended gloss of target
-            char LGRel = getDominantRelation(sSynset, tLGExtendedGloss);
+            char LGRel = getDominantRelation(sSynset, tLGExtendedGloss, source.getLanguage(), target.getLanguage());
             // get final relation
             char LGFinal = getRelationFromRels(IMappingElement.LESS_GENERAL, LGRel);
             // get gloss of Immediate descendant of target node
             String tMGExtendedGloss = getExtendedGloss(target, 1, IMappingElement.MORE_GENERAL);
-            char MGRel = getDominantRelation(sSynset, tMGExtendedGloss);
+            char MGRel = getDominantRelation(sSynset, tMGExtendedGloss, source.getLanguage(), target.getLanguage());
             char MGFinal = getRelationFromRels(IMappingElement.MORE_GENERAL, MGRel);
             // Compute final relation
             if (MGFinal == LGFinal) {
@@ -81,7 +81,7 @@ public class WNExtendedSemanticGlossComparison extends BaseGlossMatcher implemen
      * @return more general, less general or IDK relation
      * @throws it.unitn.disi.smatch.matchers.element.ElementMatcherException ElementMatcherException
      */
-    private char getDominantRelation(String sExtendedGloss, String tExtendedGloss) throws ElementMatcherException {
+    private char getDominantRelation(String sExtendedGloss, String tExtendedGloss, String sLanguage, String tLanguage) throws ElementMatcherException {
         int Equals = 0;
         int moreGeneral = 0;
         int lessGeneral = 0;
@@ -95,13 +95,13 @@ public class WNExtendedSemanticGlossComparison extends BaseGlossMatcher implemen
                 while (stTarget.hasMoreTokens()) {
                     lemmaT = stTarget.nextToken();
                     if (!meaninglessWords.contains(lemmaT)) {
-                        if (isWordLessGeneral(lemmaS, lemmaT)) {
+                        if (isWordLessGeneral(lemmaS, lemmaT, sLanguage, tLanguage)) {
                             lessGeneral++;
-                        } else if (isWordMoreGeneral(lemmaS, lemmaT)) {
+                        } else if (isWordMoreGeneral(lemmaS, lemmaT, sLanguage, tLanguage)) {
                             moreGeneral++;
-                        } else if (isWordSynonym(lemmaS, lemmaT)) {
+                        } else if (isWordSynonym(lemmaS, lemmaT, sLanguage, tLanguage)) {
                             Equals++;
-                        } else if (isWordOpposite(lemmaS, lemmaT)) {
+                        } else if (isWordOpposite(lemmaS, lemmaT, sLanguage, tLanguage)) {
                             Opposite++;
                         }
                     }

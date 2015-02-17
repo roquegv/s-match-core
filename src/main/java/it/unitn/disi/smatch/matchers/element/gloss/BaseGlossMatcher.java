@@ -41,10 +41,10 @@ public abstract class BaseGlossMatcher {
      * @return true if the source is more general than target
      * @throws it.unitn.disi.smatch.matchers.element.ElementMatcherException ElementMatcherException
      */
-    public boolean isWordMoreGeneral(String source, String target) throws ElementMatcherException {
+    public boolean isWordMoreGeneral(String source, String target, String sLanguage, String tLanguage) throws ElementMatcherException {
         try {
-            List<ISense> sSenses = linguisticOracle.getSenses(source);
-            List<ISense> tSenses = linguisticOracle.getSenses(target);
+            List<ISense> sSenses = linguisticOracle.getSenses(source, sLanguage);
+            List<ISense> tSenses = linguisticOracle.getSenses(target, tLanguage);
             for (ISense sSense : sSenses) {
                 for (ISense tSense : tSenses) {
                     if (senseMatcher.isSourceMoreGeneralThanTarget(sSense, tSense))
@@ -65,10 +65,10 @@ public abstract class BaseGlossMatcher {
      * @return true if the source is less general than target
      * @throws it.unitn.disi.smatch.matchers.element.ElementMatcherException ElementMatcherException
      */
-    public boolean isWordLessGeneral(String source, String target) throws ElementMatcherException {
+    public boolean isWordLessGeneral(String source, String target, String sLanguage, String tLanguage) throws ElementMatcherException {
         try {
-            List<ISense> sSenses = linguisticOracle.getSenses(source);
-            List<ISense> tSenses = linguisticOracle.getSenses(target);
+            List<ISense> sSenses = linguisticOracle.getSenses(source, sLanguage);
+            List<ISense> tSenses = linguisticOracle.getSenses(target, tLanguage);
             for (ISense sSense : sSenses) {
                 for (ISense tSense : tSenses) {
                     if (senseMatcher.isSourceLessGeneralThanTarget(sSense, tSense))
@@ -89,10 +89,10 @@ public abstract class BaseGlossMatcher {
      * @return true if they are synonym
      * @throws it.unitn.disi.smatch.matchers.element.ElementMatcherException ElementMatcherException
      */
-    public boolean isWordSynonym(String source, String target) throws ElementMatcherException {
+    public boolean isWordSynonym(String source, String target, String sLanguage, String tLanguage) throws ElementMatcherException {
         try {
-            List<ISense> sSenses = linguisticOracle.getSenses(source);
-            List<ISense> tSenses = linguisticOracle.getSenses(target);
+            List<ISense> sSenses = linguisticOracle.getSenses(source, sLanguage);
+            List<ISense> tSenses = linguisticOracle.getSenses(target, tLanguage);
             for (ISense sSense : sSenses) {
                 for (ISense tSense : tSenses) {
                     if (senseMatcher.isSourceSynonymTarget(sSense, tSense))
@@ -113,10 +113,10 @@ public abstract class BaseGlossMatcher {
      * @return true if they are in opposite relation
      * @throws it.unitn.disi.smatch.matchers.element.ElementMatcherException ElementMatcherException
      */
-    public boolean isWordOpposite(String source, String target) throws ElementMatcherException {
+    public boolean isWordOpposite(String source, String target, String sLanguage, String tLanguage) throws ElementMatcherException {
         try {
-            List<ISense> sSenses = linguisticOracle.getSenses(source);
-            List<ISense> tSenses = linguisticOracle.getSenses(target);
+            List<ISense> sSenses = linguisticOracle.getSenses(source, sLanguage);
+            List<ISense> tSenses = linguisticOracle.getSenses(target, tLanguage);
             for (ISense sSense : sSenses) {
                 for (ISense tSense : tSenses) {
                     if (senseMatcher.isSourceOppositeToTarget(sSense, tSense))

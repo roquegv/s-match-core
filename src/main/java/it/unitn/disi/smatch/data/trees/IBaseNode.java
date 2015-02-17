@@ -184,4 +184,8 @@ public interface IBaseNode<E extends IBaseNode, I extends IBaseNodeData> extends
      * @param node the root of the tree which is changed
      */
     void fireTreeStructureChanged(E node);
+
+    String getLanguage();
+
+    void setLanguage(String language);
 }
