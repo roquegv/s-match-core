@@ -313,6 +313,7 @@ public class AsyncMatchManager extends MatchManager implements IAsyncMatchManage
 
                 IContextMapping<INode> mapping = slmTask.get();
                 log.info("Online matching done");
+                log.info("Returning links: " + mapping.size());
                 return mapping;
             } finally {
                 Thread.currentThread().setName(threadName);

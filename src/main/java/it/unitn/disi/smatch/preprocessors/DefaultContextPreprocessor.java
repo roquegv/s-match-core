@@ -121,11 +121,12 @@ public class DefaultContextPreprocessor extends BaseContextPreprocessor implemen
         if (0 == getTotal()) {
             setTotal(4 * context.nodesCount());
         }
-        Set<String> unrecognizedWords = new HashSet<>();
 
         String language = linguisticOracle.detectLanguage(context);
         linguisticOracle.readMultiwords(language);
         context.setLanguage(language);
+
+        Set<String> unrecognizedWords = new HashSet<>();
 
         context = buildCLabs(context, unrecognizedWords);
         //context = findMultiwordsInContextStructure(context);
